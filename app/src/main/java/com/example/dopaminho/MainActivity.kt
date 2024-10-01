@@ -4,12 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -31,9 +33,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getDrawable
 import com.example.dopaminho.ui.theme.DopaminhoTheme
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,18 +120,16 @@ fun MainScreen() {
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text =
-                """
-                    Botões são clicáveis, falta levá-los às páginas corretas, e o botão de menu
-                    não foi definido o que faz.
-                    Para navegar para outras telas, pode ser implementado o NavHost,
-                    ou fazer de forma burra e simplesmente rodar partes diferentes do código 
-                    dependendo se o botão foi clicado ou não
-
-                    You have pressed the floating action button $presses times.
-                """.trimIndent(),
+            Image(
+                modifier = Modifier.clip(CircleShape),   //crops the image to circle shape
+                painter = rememberDrawablePainter(
+                    drawable = getDrawable(
+                        LocalContext.current,
+                        R.drawable.dopaminho_piscando
+                    )
+                ),
+                contentDescription = "Dopaminho piscando",
+                contentScale = ContentScale.FillWidth,
             )
         }
     }

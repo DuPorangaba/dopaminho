@@ -4,35 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.dopaminho.ui.theme.DopaminhoTheme
 
 class MainActivity : ComponentActivity() {
@@ -41,93 +39,81 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DopaminhoTheme {
-                    MyApp(
-                    )
-                }
+                MyApp()
             }
         }
     }
-
-@Composable
-fun MyApp(){
-    MainScreen()
 }
 
+@Composable
+fun MyApp() {
+    MainScreen()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
-    var presses by remember { mutableIntStateOf(0) }
+    var petName by remember { mutableStateOf("Dopaminho") }
+    var progress by remember { mutableStateOf(0.5f) }
+    val navController = rememberNavController()
+    var selectedTab by remember { mutableStateOf("inicio") }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                title = {
-                    Text("Dopaminho")
-                },
-
-                actions = {
-                    IconButton(onClick = { /* do something */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description"
-                        )
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.primary,
-            ) {
-                ElevatedButton(
-                    onClick = {/*Deve levar à página de atividades*/},
-                    modifier = Modifier.padding(horizontal = 10.dp).weight(1f)
-                ) {
-                    Text(("Atividades"))
-
-                }
-                ElevatedButton(
-                    onClick = {/*Deve levar à página de estatísticas*/},
-                    modifier = Modifier.padding(horizontal = 10.dp).weight(1f)
-                ) {
-                    Text(("Estatísticas"))
-
-                }
+            PetTopBar(petName = petName, progress = progress) { newName ->
+                petName = newName
             }
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { presses++/*Deveria abrir tela se sobreposição*/ }) {
-                Text("Definir Metas", modifier=Modifier.padding(5.dp))
+        bottomBar = {
+            NavigationBar (
 
+            ) {
+                NavigationBarItem(
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Início") },
+                    label = { Text("Início") },
+                    selected = selectedTab == "inicio",
+                    onClick = {
+                        selectedTab = "inicio"
+                        navController.navigate("inicio") {
+                            popUpTo("inicio") { inclusive = true }
+                        }
+                    }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Filled.List, contentDescription = "Atividades") },
+                    label = { Text("Atividades") },
+                    selected = selectedTab == "atividades",
+                    onClick = {
+                        selectedTab = "atividades"
+                        navController.navigate("atividades") {
+                            popUpTo("atividades") { inclusive = true }
+                        }
+                    }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Filled.Edit, contentDescription = "Metas") },
+                    label = { Text("Metas") },
+                    selected = selectedTab == "metas",
+                    onClick = {
+                        selectedTab = "metas"
+                        navController.navigate("metas") {
+                            popUpTo("metas") { inclusive = true }
+                        }
+                    }
+                )
             }
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text =
-                """
-                    Botões são clicáveis, falta levá-los às páginas corretas, e o botão de menu
-                    não foi definido o que faz.
-                    Para navegar para outras telas, pode ser implementado o NavHost,
-                    ou fazer de forma burra e simplesmente rodar partes diferentes do código 
-                    dependendo se o botão foi clicado ou não
-
-                    You have pressed the floating action button $presses times.
-                """.trimIndent(),
-            )
+        NavHost(navController, startDestination = "inicio", Modifier.padding(innerPadding)) {
+            composable("inicio") { InicioScreen() }
+            composable("atividades") { AtividadesScreen() }
+            composable("metas") { MetasScreen() }
         }
     }
+}
+
+@Composable
+fun InicioScreen() {
 }
 
 @Preview(showBackground = true, widthDp = 320, heightDp = 480)
@@ -137,3 +123,75 @@ fun GreetingPreview() {
         MyApp()
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit) {
+    var isEditing by remember { mutableStateOf(false) }
+    var newPetName by remember { mutableStateOf(TextFieldValue(petName)) }
+
+    Column {
+        TopAppBar(
+            colors = topAppBarColors (
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title =  {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = petName)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        IconButton(onClick = { isEditing = true }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Editar nome do pet")
+                        }
+                    }
+                    // Barra de progresso dentro da TopAppBar
+                    LinearProgressIndicator(
+                        progress = progress,
+                        modifier = Modifier
+                            .fillMaxWidth().padding(vertical = 4.dp)
+                            .height(15.dp)
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                }
+            },
+            actions = {
+                IconButton(onClick = { /* do something */ }) {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Localized description"
+                    )
+                }
+            },
+        )
+        if (isEditing) {
+            AlertDialog(
+                onDismissRequest = { isEditing = false },
+                title = { Text("Editar nome do pet") },
+                text = {
+                    TextField(
+                        value = newPetName,
+                        onValueChange = { newPetName = it },
+                        label = { Text("Nome do Pet") }
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onEditPetName(newPetName.text)
+                            isEditing = false
+                        }
+                    ) {
+                        Text("Salvar")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { isEditing = false }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
+    }
+}
+

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
@@ -24,6 +25,8 @@ import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +35,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dopaminho.ui.theme.DopaminhoTheme
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat.getDrawable
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,13 +115,27 @@ fun MainScreen() {
             composable("inicio") { InicioScreen() }
             composable("atividades") { AtividadesScreen() }
             composable("metas") { MetasScreen() }
+
         }
     }
 }
 
 @Composable
 fun InicioScreen() {
+    Image(
+        modifier = Modifier.clip(CircleShape),   //crops the image to circle shape
+        painter = rememberDrawablePainter(
+            drawable = getDrawable(
+                LocalContext.current,
+                R.drawable.dopaminho_piscando
+            )
+        ),
+        contentDescription = "dopaminho piscando",
+        contentScale = ContentScale.FillWidth,
+    )
 }
+
+
 
 @Preview(showBackground = true, widthDp = 320, heightDp = 480)
 @Composable

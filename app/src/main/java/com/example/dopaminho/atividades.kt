@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
@@ -110,4 +111,10 @@ fun Timer(seconds: Int) {
     } else {
         Text(text = "Tempo esgotado!", color = MaterialTheme.colorScheme.error)
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AtividadesScreenPreview(){
+    AtividadesScreen()
 }

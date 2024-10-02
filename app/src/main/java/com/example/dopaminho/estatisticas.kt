@@ -1,6 +1,7 @@
 package com.example.dopaminho
 
 
+import android.annotation.SuppressLint
 import android.widget.LinearLayout
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
@@ -27,12 +28,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
@@ -50,74 +56,32 @@ import com.github.mikephil.charting.data.PieEntry
 import java.util.*
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EstatisticasScreen() {
-    var activities by remember { mutableStateOf(listOf("Correr", "Ler", "Estudar")) }
-    var newActivity by remember { mutableStateOf("") }
-    var selectedActivity by remember { mutableStateOf("") }
-    var selectedTime by remember { mutableStateOf(0) }
-    var timeInputVisible by remember { mutableStateOf(false) }
-    var isTiming by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(text = "Atividades", style = MaterialTheme.typography.headlineMedium)
-
-        // Listagem de atividades como cards
-        LazyColumn {
-            items(activities) { activity ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clickable {
-                            selectedActivity = activity
-                            timeInputVisible = true
-                        },
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = activity, style = MaterialTheme.typography.titleMedium)
-                        if (selectedActivity == activity && timeInputVisible) {
-                            TextField(
-                                value = selectedTime.toString(),
-                                onValueChange = { time ->
-                                    selectedTime = time.toIntOrNull() ?: 0
-                                },
-                                label = { Text("Tempo (minutos)") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Button(onClick = {
-                                isTiming = true
-                                timeInputVisible = false // Oculta o campo de entrada
-                            }) {
-                                Text("Iniciar Temporizador")
-                            }
-                        }
-
-                    }
+    Column {
+        TopAppBar(
+            colors = topAppBarColors (
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title =  {
+                Text("Estatistícas")
+            },
+            actions = {
+                IconButton(onClick = {  }) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBackIos,
+                        contentDescription = "Voltar"
+                    )
                 }
-            }
-        }
-
-        // Campo para adicionar nova atividade
-        TextField(
-            value = newActivity,
-            onValueChange = { newActivity = it },
-            label = { Text("Adicionar nova atividade") },
-            modifier = Modifier.fillMaxWidth()
+            },
         )
-        PieChart()
+    };
+    PieChart()
 
-    }
 }
 
 @Composable

@@ -16,18 +16,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +36,7 @@ import com.example.dopaminho.ui.theme.DopaminhoTheme
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat.getDrawable
+import androidx.navigation.NavController
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 class MainActivity : ComponentActivity() {
@@ -67,9 +66,12 @@ fun MainScreen() {
 
     Scaffold(
         topBar = {
-            PetTopBar(petName = petName, progress = progress) { newName ->
-                petName = newName
-            }
+            PetTopBar(
+                petName = petName,
+                progress = progress,
+                onEditPetName = { newName -> petName = newName },
+                navController = navController // Passando o navController
+            )
         },
         bottomBar = {
             NavigationBar (
@@ -115,7 +117,7 @@ fun MainScreen() {
             composable("inicio") { InicioScreen() }
             composable("atividades") { AtividadesScreen() }
             composable("metas") { MetasScreen() }
-
+            composable("estatisticas") { EstatisticasScreen() }
         }
     }
 }
@@ -147,7 +149,7 @@ fun GreetingPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit) {
+fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit, navController: NavController) {
     var isEditing by remember { mutableStateOf(false) }
     var newPetName by remember { mutableStateOf(TextFieldValue(petName)) }
 
@@ -177,10 +179,10 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit)
                 }
             },
             actions = {
-                IconButton(onClick = { /* do something */ }) {
+                IconButton(onClick = { navController.navigate("estatisticas") }) {
                     Icon(
-                        imageVector = Icons.Filled.Settings,
-                        contentDescription = "Localized description"
+                        imageVector = Icons.Filled.BarChart,
+                        contentDescription = "Estatistícas"
                     )
                 }
             },

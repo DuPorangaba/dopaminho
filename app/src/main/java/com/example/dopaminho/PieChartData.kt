@@ -12,8 +12,8 @@ data class PieChartData(
 // on below line we are creating a method
 // in which we are passing all the data.
 val getPieChartData = listOf(
-    PieChartData("Chrome", 34.68F),
-    PieChartData("Firefox", 16.60F),
-    PieChartData("Safari", 16.15F),
-    PieChartData("Internet Explorer", 15.62F),
+    PieChartData("TikTok", 34.68F),
+    PieChartData("Youtube", 16.60F),
+    PieChartData("Instagram", 16.15F),
+    PieChartData("Facebook", 15.62F),
 )

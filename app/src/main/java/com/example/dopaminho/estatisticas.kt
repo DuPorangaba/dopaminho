@@ -115,7 +115,7 @@ fun EstatisticasScreen() {
             label = { Text("Adicionar nova atividade") },
             modifier = Modifier.fillMaxWidth()
         )
-        Text("Aqui")
+        PieChart()
 
     }
 }
@@ -258,7 +258,7 @@ fun updatePieChartWithData(
     ds.sliceSpace = 2f
 
     // on below line we are specifying text color
-    ContextCompat.getColor(this, R.color.white)
+    //ContextCompat.getColor(this, R.color.white)
     // ds.valueTextColor = resources.getColor(R.color.white)
 
     // on below line we are specifying
@@ -280,7 +280,7 @@ fun updatePieChartWithData(
     // calling invalidate in chart.
     chart.invalidate()
 }
-}
+
 
 
 @Preview(showBackground = true)

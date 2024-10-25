@@ -61,25 +61,34 @@ import java.util.*
 @Composable
 fun EstatisticasScreen() {
 
-    Column {
-        TopAppBar(
-            colors = topAppBarColors (
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.primary,
-            ),
-            title =  {
-                Text("Estatistícas")
-            },
-            actions = {
-                IconButton(onClick = {  }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBackIos,
-                        contentDescription = "Voltar"
-                    )
-                }
-            },
-        )
-    };
+    DopaminhoTheme {
+        Column {
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            ) { Text("Botão") }
+            TopAppBar(
+                colors = topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text("Estatistícas")
+                },
+                actions = {
+                    IconButton(onClick = { }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBackIos,
+                            contentDescription = "Voltar"
+                        )
+                    }
+                },
+            )
+        }
+    }
     PieChart()
 
 }
@@ -205,12 +214,12 @@ fun updatePieChartWithData(
 
     // on below line we are specifying color
     // int the array list from colors.
-    ds.colors = arrayListOf(
-        greenColor.toArgb(),
-        blueColor.toArgb(),
-        redColor.toArgb(),
-        yellowColor.toArgb(),
-    )
+   // ds.colors = arrayListOf(
+   //     greenColor.toArgb(),
+   //     blueColor.toArgb(),
+   //     redColor.toArgb(),
+  //      yellowColor.toArgb(),
+   // )
     // on below line we are specifying position for value
     ds.yValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
 

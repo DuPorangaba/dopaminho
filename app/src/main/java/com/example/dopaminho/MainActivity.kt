@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.navigation.NavController
+import com.example.dopaminho.ui.theme.AppTypography
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 class MainActivity : ComponentActivity() {
@@ -53,7 +54,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp() {
-    MainScreen()
+    DopaminhoTheme {
+        MainScreen()
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +68,11 @@ fun MainScreen() {
     val navController = rememberNavController()
     var selectedTab by remember { mutableStateOf("inicio") }
 
+
+
+
     Scaffold(
+
         topBar = {
             PetTopBar(
                 petName = petName,
@@ -72,9 +80,11 @@ fun MainScreen() {
                 onEditPetName = { newName -> petName = newName },
                 navController = navController // Passando o navController
             )
+
         },
         bottomBar = {
             NavigationBar (
+                containerColor= MaterialTheme.colorScheme.primaryContainer
 
             ) {
                 NavigationBarItem(
@@ -119,6 +129,10 @@ fun MainScreen() {
             composable("metas") { MetasScreen() }
             composable("estatisticas") { EstatisticasScreen() }
         }
+
+
+
+
     }
 }
 
@@ -139,7 +153,7 @@ fun InicioScreen() {
 
 
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 480)
+@Preview(showBackground = true, widthDp = 360, heightDp = 600)
 @Composable
 fun GreetingPreview() {
     DopaminhoTheme {
@@ -153,67 +167,71 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
     var isEditing by remember { mutableStateOf(false) }
     var newPetName by remember { mutableStateOf(TextFieldValue(petName)) }
 
-    Column {
-        TopAppBar(
-            colors = topAppBarColors (
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.primary,
-            ),
-            title =  {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = petName)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        IconButton(onClick = { isEditing = true }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar nome do pet")
+    DopaminhoTheme {
+        Column {
+
+            TopAppBar(
+                colors = topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
+                title = {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = petName)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            IconButton(onClick = { isEditing = true }) {
+                                Icon(Icons.Default.Edit, contentDescription = "Editar nome do pet")
+                            }
                         }
-                    }
-                    // Barra de progresso dentro da TopAppBar
-                    LinearProgressIndicator(
-                        progress = progress,
-                        modifier = Modifier
-                            .fillMaxWidth().padding(vertical = 4.dp)
-                            .height(15.dp)
-                    )
-                    Spacer(modifier = Modifier.height(15.dp))
-                }
-            },
-            actions = {
-                IconButton(onClick = { navController.navigate("estatisticas") }) {
-                    Icon(
-                        imageVector = Icons.Filled.BarChart,
-                        contentDescription = "Estatistícas"
-                    )
-                }
-            },
-        )
-        if (isEditing) {
-            AlertDialog(
-                onDismissRequest = { isEditing = false },
-                title = { Text("Editar nome do pet") },
-                text = {
-                    TextField(
-                        value = newPetName,
-                        onValueChange = { newPetName = it },
-                        label = { Text("Nome do Pet") }
-                    )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            onEditPetName(newPetName.text)
-                            isEditing = false
-                        }
-                    ) {
-                        Text("Salvar")
+                        // Barra de progresso dentro da TopAppBar
+                        LinearProgressIndicator(
+                            progress = progress,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .height(15.dp)
+                        )
+                        Spacer(modifier = Modifier.height(15.dp))
                     }
                 },
-                dismissButton = {
-                    TextButton(onClick = { isEditing = false }) {
-                        Text("Cancelar")
+                actions = {
+                    IconButton(onClick = { navController.navigate("estatisticas") }) {
+                        Icon(
+                            imageVector = Icons.Filled.BarChart,
+                            contentDescription = "Estatistícas"
+                        )
                     }
-                }
+                },
             )
+            if (isEditing) {
+                AlertDialog(
+                    onDismissRequest = { isEditing = false },
+                    title = { Text("Editar nome do pet") },
+                    text = {
+                        TextField(
+                            value = newPetName,
+                            onValueChange = { newPetName = it },
+                            label = { Text("Nome do Pet") }
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                onEditPetName(newPetName.text)
+                                isEditing = false
+                            }
+                        ) {
+                            Text("Salvar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { isEditing = false }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.dopaminho.ui.theme.DopaminhoTheme
 
 @Composable
 fun MetasScreen() {
@@ -175,5 +176,13 @@ fun GoalCard(goal: Goal, onEdit: (Goal) -> Unit) {
     }
 }
 
+@Preview
+    (showBackground = true, widthDp = 320, heightDp = 480)
+@Composable
+fun MetasScreenPreview() {
+    DopaminhoTheme {
+        MetasScreen()
+    }
+}
 // Data class para representar uma meta
 data class Goal(val network: String, val time: Int, val reason: String)

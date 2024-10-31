@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -49,6 +51,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.navigation.NavController
 import com.example.dopaminho.ui.theme.AppTypography
+import com.example.dopaminho.ui.theme.bodyFontFamily
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 class MainActivity : ComponentActivity() {
@@ -121,7 +124,7 @@ fun MainScreen() {
                                     Icon(
                                         bitmap = ImageBitmap.imageResource(R.drawable.home_page),
                                         contentDescription = "Home page",
-                                        modifier = Modifier.size(40.dp),
+                                        modifier = Modifier.size(30.dp),
                                         tint = MaterialTheme.colorScheme.background
                                     )
                                 }
@@ -152,7 +155,7 @@ fun MainScreen() {
                                     Icon(
                                         bitmap = ImageBitmap.imageResource(R.drawable.atividades),
                                         contentDescription = "Atividades",
-                                        modifier = Modifier.size(40.dp),
+                                        modifier = Modifier.size(30.dp),
                                         tint = MaterialTheme.colorScheme.background
                                     )
                                 }
@@ -183,7 +186,7 @@ fun MainScreen() {
                                     Icon(
                                         bitmap = ImageBitmap.imageResource(R.drawable.estatisticas),
                                         contentDescription = "Estatísticas",
-                                        modifier = Modifier.size(40.dp),
+                                        modifier = Modifier.size(30.dp),
                                         tint = MaterialTheme.colorScheme.background
                                     )
                                 }
@@ -251,13 +254,16 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
 
             TopAppBar(
                 colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ),
                 title = {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = petName)
+                            Text(
+                                text = petName,
+                                //fontFamily = bodyFontFamily
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             IconButton(onClick = { isEditing = true }) {
                                 Icon(Icons.Default.Edit, contentDescription = "Editar nome do pet")
@@ -265,11 +271,13 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
                         }
                         // Barra de progresso dentro da TopAppBar
                         LinearProgressIndicator(
-                            progress = progress,
+                            progress = { progress },
                             modifier = Modifier
-                                .fillMaxWidth()
                                 .padding(vertical = 4.dp)
                                 .height(15.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                ,
+                            color= MaterialTheme.colorScheme.secondaryContainer
                         )
                         Spacer(modifier = Modifier.height(15.dp))
                     }
@@ -277,8 +285,10 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
                 actions = {
                     IconButton(onClick = { navController.navigate("estatisticas") }) {
                         Icon(
-                            imageVector = Icons.Filled.BarChart,
-                            contentDescription = "Estatistícas"
+                            bitmap = ImageBitmap.imageResource(R.drawable.config),
+                            contentDescription = "Configurações",
+                            modifier = Modifier.size(30.dp),
+                            tint = MaterialTheme.colorScheme.background
                         )
                     }
                 },
@@ -286,6 +296,9 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
                     topEnd = 0.dp, // Apenas o canto superior direito arredondado
                     bottomStart = 16.dp,
                     bottomEnd = 16.dp))
+
+
+
             )
             if (isEditing) {
                 AlertDialog(

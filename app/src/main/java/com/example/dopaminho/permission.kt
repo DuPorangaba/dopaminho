@@ -6,11 +6,11 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Context.USAGE_STATS_SERVICE
 import android.content.Intent
+import android.content.UriPermission
 import android.icu.util.Calendar
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -28,6 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.dopaminho.ui.theme.DopaminhoTheme
 import android.view.View
+import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 fun hasUsageStatsPermission(context: Context): Boolean {
     val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
@@ -45,46 +50,44 @@ fun grantUsageStatsPermission(context: Context) {
 @Composable
 fun PermissionScreen() {
     val context = LocalContext.current
+    var showPermissionDialog by remember { mutableStateOf(true) }
 
-    DopaminhoTheme {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    title = {
-                        Text("Solicitando Permissão")
+        DopaminhoTheme {
+            AlertDialog(
+                onDismissRequest = { showPermissionDialog = false },
+                title = {
+                    Text("Solicitando Permissão")
+                },
+                text = {
+                    Text(
+                        text = "Para o app funcionar, é necessário permitir que ele colete informações sobre o tempo de uso dos apps.\n" +
+                                "Assim, é preciso dar essa permissão a este app."
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            // Chama a função grantUsageStatsPermission quando o botão for clicado
+                            grantUsageStatsPermission(context)
+                            showPermissionDialog = false // Fecha o diálogo após a ação
+                        }
+                    ) {
+                        Text("Dar Permissão")
                     }
-                )
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(16.dp), // Add padding around the column
-                verticalArrangement = Arrangement.spacedBy(16.dp) // Space between items
-            ) {
-                Text(
-                    text = "Para o app funcionar, é necessário permitir que ele colete informações sobre o tempo de uso dos apps.\n" +
-                            " Assim, é preciso dar essa permissão a este app"
-                )
-
-                Button(
-                    onClick = { grantUsageStatsPermission(context) },
-                    modifier = Modifier.fillMaxWidth(), // Make button full width
-                ) {
-                    Text("Dar Permissão")
+                },
+                dismissButton = {
+                    Button(onClick = { showPermissionDialog = false }) {
+                        Text("Cancelar")
+                    }
                 }
-            }
+            )
         }
-    }
 }
 
 
-fun getUsageStats() {
-    val usageManager = getSystemService(Context, USAGE_STATS_SERVICE) as UsageStatsManager
+
+fun getUsageStats(context: Context): String {
+    val usageManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
     val calendar = Calendar.getInstance()
     calendar.add(Calendar.DAY_OF_YEAR, -1)
     val startTime = calendar.timeInMillis
@@ -92,10 +95,14 @@ fun getUsageStats() {
 
     val usageStatsList: List<UsageStats> = usageManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
 
+    val stringBuilder = StringBuilder()
     for (usageStats in usageStatsList) {
-        val packageName = usageStats.packageName
-        val totalTime = usageStats.totalTimeInForeground
-
-        println("App: $packageName, Time used: $totalTime ms\n")
+        val packagaName = usageStats.packageName
+        val totalUsageTime = usageStats.totalTimeInForeground / 1000
+        if(totalUsageTime == 0L) continue
+        stringBuilder.append("$packagaName: $totalUsageTime secs \n\n")
     }
+
+    return stringBuilder.toString()
 }
+

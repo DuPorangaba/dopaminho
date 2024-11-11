@@ -19,40 +19,28 @@ import com.example.dopaminho.ui.theme.DopaminhoTheme
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EstatisticasScreen() {
+    val context = LocalContext.current
+
+    // A state to hold the usage statistics
+    var usageStats by remember { mutableStateOf("") }
+
+    LaunchedEffect(context) {
+        usageStats = getUsageStats(context)
+    }
+
 
     DopaminhoTheme {
-        Column {
-            TopAppBar(
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                title = {
-                    Text("Estatistícas")
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBackIos,
-                            contentDescription = "Voltar"
-                        )
-                    }
-                },
-            )
+        // Display the usage stats (this can be in a Text, for example)
+        Column() {
+            Text(text = "Usage Stats:")
+            Text(text = usageStats)
         }
     }
 
-    getUsageStats()
-
-
 }
-
-
-
 
 @Preview(showBackground = true)
 @Composable

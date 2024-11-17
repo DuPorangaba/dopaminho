@@ -71,12 +71,12 @@ class MainActivity : ComponentActivity() {
                 if (!hasUsageStatsPermission(this)) {
                     PermissionScreen()
                 } else {
+
                     MyApp()
                 }
             }
         }
     }
-
 }
 
 

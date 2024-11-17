@@ -9,25 +9,12 @@ import android.content.Intent
 import android.content.UriPermission
 import android.icu.util.Calendar
 import android.provider.Settings
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getSystemService
 import com.example.dopaminho.ui.theme.DopaminhoTheme
-import android.view.View
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,23 +71,5 @@ fun PermissionScreen() {
         }
 }
 
-fun getUsageStats(context: Context): String {
-    val usageManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-    val calendar = Calendar.getInstance()
-    calendar.add(Calendar.DAY_OF_YEAR, -1)
-    val startTime = calendar.timeInMillis
-    val endTime = System.currentTimeMillis()
 
-    val usageStatsList: List<UsageStats> = usageManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
-
-    val stringBuilder = StringBuilder()
-    for (usageStats in usageStatsList) {
-        val packagaName = usageStats.packageName
-        val totalUsageTime = usageStats.totalTimeInForeground / 1000
-        if(totalUsageTime == 0L) continue
-        stringBuilder.append("$packagaName: $totalUsageTime secs \n\n")
-    }
-
-    return stringBuilder.toString()
-}
 

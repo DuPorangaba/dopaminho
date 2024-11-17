@@ -84,8 +84,6 @@ fun PermissionScreen() {
         }
 }
 
-
-
 fun getUsageStats(context: Context): String {
     val usageManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
     val calendar = Calendar.getInstance()

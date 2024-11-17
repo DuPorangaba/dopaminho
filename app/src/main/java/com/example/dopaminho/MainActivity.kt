@@ -52,6 +52,7 @@ import com.example.dopaminho.ui.theme.bodyFontFamily
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -75,6 +76,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
 
 

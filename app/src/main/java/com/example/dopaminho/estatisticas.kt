@@ -1,6 +1,7 @@
 package com.example.dopaminho
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,7 +14,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.work.WorkManager
+import androidx.work.WorkQuery
 
 import com.example.dopaminho.ui.theme.DopaminhoTheme
 
@@ -32,10 +37,13 @@ fun EstatisticasScreen() {
     }
 
     DopaminhoTheme {
-        // Display the usage stats (this can be in a Text, for example)
-        Column() {
-            Text(text = "Usage Stats:")
-            Text(text = usageStats)
+        if (!hasUsageStatsPermission(context)) {
+            PermissionScreen()
+        } else {
+            Column() {
+                Text(text = "Usage Stats:")
+                Text(text = usageStats)
+            }
         }
     }
 

@@ -1,20 +1,67 @@
 package com.example.dopaminho
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.example.dopaminho.ui.theme.DopaminhoTheme
+import kotlinx.coroutines.flow.first
+import androidx.datastore.preferences.core.*
+import kotlinx.coroutines.runBlocking
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "goals")
+
+class GoalRepository(context: Context) {
+    private val dataStore = context.dataStore
+
+    companion object {
+        private val GOALS_KEY = stringPreferencesKey("goals")
+    }
+
+    suspend fun saveGoals(goals: List<Goal>) {
+        val goalJson = Goal.listToJson(goals)
+        dataStore.edit { preferences ->
+            preferences[GOALS_KEY] = goalJson
+        }
+    }
+
+    suspend fun loadGoals(): List<Goal> {
+        val preferences = dataStore.data.first()
+        val goalsJson = preferences[GOALS_KEY] ?: "[]"
+        return Goal.jsonToList(goalsJson)
+    }
+}
 
 @Composable
 fun MetasScreen() {
+    val context = LocalContext.current
+    val goalRepository = remember { GoalRepository(context) }
+
     var savedGoals by remember { mutableStateOf(listOf<Goal>()) }
     var showDialog by remember { mutableStateOf(false) }
     var goalToEdit by remember { mutableStateOf<Goal?>(null) }
+
+    LaunchedEffect(Unit) {
+        savedGoals = goalRepository.loadGoals()
+    }
+
+    LaunchedEffect(savedGoals) {
+        goalRepository.saveGoals(savedGoals)
+    }
 
     Column(
         modifier = Modifier
@@ -46,15 +93,17 @@ fun MetasScreen() {
             AddGoalDialog(
                 onDismiss = { showDialog = false },
                 onAddGoal = { network, time, reason ->
-                    if (goalToEdit != null) {
+                    val newGoal = Goal(network, time, reason)
+                    savedGoals = if (goalToEdit != null) {
                         // Editar meta existente
-                        savedGoals = savedGoals.map {
+                        savedGoals.map {
                             if (it == goalToEdit) Goal(network, time, reason) else it
                         }
                     } else {
                         // Adiciona nova meta
-                        savedGoals = savedGoals + Goal(network, time, reason)
+                        savedGoals + newGoal
                     }
+
                     showDialog = false
                 },
                 existingGoal = goalToEdit // Passa a meta a ser editada
@@ -181,4 +230,18 @@ fun MetasScreenPreview() {
     }
 }
 // Data class para representar uma meta
-data class Goal(val network: String, val time: Int, val reason: String)
+data class Goal(val network: String, val time: Int, val reason: String) {
+    companion object {
+        fun listToJson(goals: List<Goal>): String {
+            val gson = Gson()
+            return gson.toJson(goals)
+        }
+
+        fun jsonToList(json: String): List<Goal> {
+            val gson = Gson()
+            val type = object : TypeToken<List<Goal>>() {}.type
+            return gson.fromJson(json, type)
+
+        }
+    }
+}

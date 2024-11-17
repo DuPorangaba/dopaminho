@@ -74,5 +74,7 @@ dependencies {
     implementation(libs.fuel)
     implementation(libs.fuel.coroutines)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.gson)
 
 }

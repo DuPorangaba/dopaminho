@@ -27,10 +27,9 @@ fun EstatisticasScreen() {
     // A state to hold the usage statistics
     var usageStats by remember { mutableStateOf("") }
 
-    LaunchedEffect(context) {
+    LaunchedEffect(Unit) {
         usageStats = getUsageStats(context)
     }
-
 
     DopaminhoTheme {
         // Display the usage stats (this can be in a Text, for example)

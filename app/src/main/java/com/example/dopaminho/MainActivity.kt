@@ -10,17 +10,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +42,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.navigation.NavController
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
@@ -229,17 +234,84 @@ fun MainScreen() {
 
 @Composable
 fun InicioScreen() {
-    Image(
-        modifier = Modifier.clip(CircleShape),   //crops the image to circle shape
-        painter = rememberDrawablePainter(
-            drawable = getDrawable(
-                LocalContext.current,
-                R.drawable.dopaminho_piscando
-            )
-        ),
-        contentDescription = "dopaminho piscando",
-        contentScale = ContentScale.FillWidth,
-    )
+    //Tentando puxar as metas
+    val context = LocalContext.current
+    val goalRepository = remember { GoalRepository(context) }
+    var savedGoals by remember { mutableStateOf(listOf<Goal>()) }
+
+    LaunchedEffect(Unit) {
+        savedGoals = goalRepository.loadGoals()
+    }
+
+    LaunchedEffect(savedGoals) {
+        goalRepository.saveGoals(savedGoals)
+    }
+    //Tentando puxar tempo de uso
+    val usageStatsList by AppUsageManager.AppUsageStatsList.observeAsState(mutableListOf())
+
+    LaunchedEffect(Unit) {
+        while(true) {
+            AppUsageManager.getUsageStats(context)
+            delay(100)
+        }
+
+    }
+
+    //Exibindo metas na tela
+    Column {
+        Column {
+            savedGoals.forEach { goal ->
+                Text("Meta: ${goal.labelApp} = ${goal.time} min")
+            }
+        }
+        //Exibindo tempo de uso na tela
+        Column(
+            modifier = Modifier
+        ) {
+            usageStatsList.forEach { stat ->
+                Text(
+                    text = "${stat.labelName}: ${stat.totalUsageTime} secs",
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                )
+            }
+        }
+        Column (
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ){
+            savedGoals.forEach{goal->
+                usageStatsList.forEach{stat->
+                    if(goal.labelApp==stat.labelName){
+                        Text("Esta na meta: ${stat.labelName}")
+                        if(goal.time * 60  < stat.totalUsageTime){
+                            Text("Fora da meta: ${goal.time} min | Uso: ${stat.totalUsageTime/60} min")
+                        }
+                        else{
+                            Text("Dentro da meta: ${goal.time} min | Uso: ${stat.totalUsageTime/60} min")
+                        }
+                    }
+
+
+                }
+            }
+        }
+    }
+
+
+
+
+//    Image(
+//        modifier = Modifier.clip(CircleShape),   //crops the image to circle shape
+//        painter = rememberDrawablePainter(
+//            drawable = getDrawable(
+//                LocalContext.current,
+//                R.drawable.dopaminho_piscando
+//            )
+//        ),
+//        contentDescription = "dopaminho piscando",
+//        contentScale = ContentScale.FillWidth,
+//    )
 }
 
 
@@ -251,12 +323,23 @@ fun GreetingPreview() {
         MyApp()
     }
 }
+object BarraDeVida { //Objeto barra de vida
+    var vidaAtual = 100.00
 
+    fun perdeVida(dano:Long){
+        vidaAtual -= dano
+        if(vidaAtual<0 ) vidaAtual= 0.0
+    }
+
+
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit, navController: NavController) {
     var isEditing by remember { mutableStateOf(false) }
     var newPetName by remember { mutableStateOf(TextFieldValue(petName)) }
+
+
 
     DopaminhoTheme {
         Column {
@@ -269,6 +352,7 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
                 title = {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
+
                             Text(
                                 text = petName,
                                 //fontFamily = bodyFontFamily
@@ -279,15 +363,7 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
                             }
                         }
                         // Barra de progresso dentro da TopAppBar
-                        LinearProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier
-                                .padding(vertical = 4.dp)
-                                .height(15.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                ,
-                            color= MaterialTheme.colorScheme.secondaryContainer
-                        )
+                        Text("Vida: ${BarraDeVida.vidaAtual} / 100")
                         Spacer(modifier = Modifier.height(15.dp))
                     }
                 },

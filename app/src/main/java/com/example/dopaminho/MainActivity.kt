@@ -1,8 +1,6 @@
 package com.example.dopaminho
 
-import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,21 +10,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
@@ -44,11 +35,8 @@ import com.example.dopaminho.ui.theme.DopaminhoTheme
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.navigation.NavController
-import com.example.dopaminho.ui.theme.AppTypography
-import com.example.dopaminho.ui.theme.bodyFontFamily
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 class MainActivity : ComponentActivity() {
@@ -71,8 +59,8 @@ class MainActivity : ComponentActivity() {
                 if (!hasUsageStatsPermission(this)) {
                     PermissionScreen()
                 } else {
-
                     MyApp()
+                    AlarmReceiver.setAlarm(this)
                 }
             }
         }
@@ -89,11 +77,11 @@ fun MyApp() {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun MainScreen() {
     var petName by remember { mutableStateOf("Dopaminho") }
-    var progress by remember { mutableStateOf(0.5f) }
+    var progress by remember { mutableFloatStateOf(0.5f) }
     val navController = rememberNavController()
     var selectedTab by remember { mutableStateOf("inicio") }
 

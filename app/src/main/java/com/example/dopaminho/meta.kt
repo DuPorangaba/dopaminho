@@ -1,6 +1,8 @@
 package com.example.dopaminho
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,8 +19,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.dopaminho.ui.theme.DopaminhoTheme
 import kotlinx.coroutines.flow.first
-import androidx.datastore.preferences.core.*
-import kotlinx.coroutines.runBlocking
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -92,12 +92,12 @@ fun MetasScreen() {
         if (showDialog) {
             AddGoalDialog(
                 onDismiss = { showDialog = false },
-                onAddGoal = { network, time, reason ->
-                    val newGoal = Goal(network, time, reason)
+                onAddGoal = { labelApp, time, reason ->
+                    val newGoal = Goal(labelApp, time, reason)
                     savedGoals = if (goalToEdit != null) {
                         // Editar meta existente
                         savedGoals.map {
-                            if (it == goalToEdit) Goal(network, time, reason) else it
+                            if (it == goalToEdit) Goal(labelApp, time, reason) else it
                         }
                     } else {
                         // Adiciona nova meta
@@ -106,6 +106,7 @@ fun MetasScreen() {
 
                     showDialog = false
                 },
+                context,
                 existingGoal = goalToEdit // Passa a meta a ser editada
             )
         }
@@ -117,14 +118,24 @@ fun MetasScreen() {
 fun AddGoalDialog(
     onDismiss: () -> Unit,
     onAddGoal: (String, Int, String) -> Unit,
+    context: Context,
     existingGoal: Goal? = null // Recebe uma meta existente para edição
 ) {
-    var selectedNetwork by remember { mutableStateOf(existingGoal?.network ?: "Facebook") }
+    val installedApps = remember {
+        context.packageManager.queryIntentActivities(
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_LAUNCHER)
+            },
+            PackageManager.MATCH_ALL
+        ).map {it.activityInfo.loadLabel(context.packageManager).toString()}.sorted()
+    }
+
+    var selectedApp by remember { mutableStateOf(existingGoal?.labelApp ?: "Instagram") }
     var usageTime by remember { mutableStateOf(existingGoal?.time?.toString() ?: "") }
     var reason by remember { mutableStateOf(existingGoal?.reason ?: "") }
     var expanded by remember { mutableStateOf(false) }
 
-    val socialNetworks = listOf("Facebook", "Instagram", "Twitter", "TikTok", "LinkedIn")
+
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -133,7 +144,7 @@ fun AddGoalDialog(
             Button(
                 onClick = {
                     if (!usageTime.isNullOrEmpty() && !reason.isNullOrEmpty()) {
-                        onAddGoal(selectedNetwork, usageTime!!.toInt(), reason)
+                        onAddGoal(selectedApp, usageTime!!.toInt(), reason)
                         usageTime = ""
                         reason = ""
                     }
@@ -155,7 +166,7 @@ fun AddGoalDialog(
                     onExpandedChange = { expanded = !expanded }
                 ) {
                     TextField(
-                        value = selectedNetwork,
+                        value = selectedApp,
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Rede Social") },
@@ -165,11 +176,11 @@ fun AddGoalDialog(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        socialNetworks.forEach { network ->
+                        installedApps.forEach { labelApp ->
                             DropdownMenuItem(
-                                text = { Text(network) },
+                                text = { Text(labelApp) },
                                 onClick = {
-                                    selectedNetwork = network
+                                    selectedApp = labelApp
                                     expanded = false
                                 }
                             )
@@ -210,7 +221,7 @@ fun GoalCard(goal: Goal, onEdit: (Goal) -> Unit) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(text = "Rede Social: ${goal.network}", style = MaterialTheme.typography.titleMedium)
+            Text(text = "Rede Social: ${goal.labelApp}", style = MaterialTheme.typography.titleMedium)
             Text(text = "Tempo de Uso: ${goal.time} minutos", style = MaterialTheme.typography.bodyMedium)
             Text(text = "Motivo: ${goal.reason}", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
@@ -230,7 +241,10 @@ fun MetasScreenPreview() {
     }
 }
 // Data class para representar uma meta
-data class Goal(val network: String, val time: Int, val reason: String) {
+data class Goal(
+    val labelApp: String, 
+    val time: Int, 
+    val reason: String) {
     companion object {
         fun listToJson(goals: List<Goal>): String {
             val gson = Gson()

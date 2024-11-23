@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -29,20 +27,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dopaminho.ui.theme.DopaminhoTheme
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.imageResource
-import androidx.core.content.ContextCompat.getDrawable
-import androidx.navigation.NavController
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.delay
+import java.util.logging.Handler
 
 class MainActivity : ComponentActivity() {
 
@@ -323,7 +319,7 @@ fun GreetingPreview() {
         MyApp()
     }
 }
-object BarraDeVida { //Objeto barra de vida
+object BarraDeVida { //Objeto barra de vida, não armazenou na memória
     var vidaAtual = 100.00
 
     fun perdeVida(dano:Long){
@@ -338,6 +334,10 @@ object BarraDeVida { //Objeto barra de vida
 fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit, navController: NavController) {
     var isEditing by remember { mutableStateOf(false) }
     var newPetName by remember { mutableStateOf(TextFieldValue(petName)) }
+    var vida by remember { mutableDoubleStateOf(100.0) } //utilizando remember para refletir mudanças na interface, que não estava funcionando com object e Lauched Effects
+
+
+
 
 
 
@@ -363,7 +363,16 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
                             }
                         }
                         // Barra de progresso dentro da TopAppBar
-                        Text("Vida: ${BarraDeVida.vidaAtual} / 100")
+
+
+                        LaunchedEffect(Unit) {
+                            while (true) {
+
+                                vida -= 1
+                                delay(1000)
+                            }
+                        }
+                        Text("Vida: $vida / 100")
                         Spacer(modifier = Modifier.height(15.dp))
                     }
                 },
@@ -417,4 +426,3 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
         }
     }
 }
-

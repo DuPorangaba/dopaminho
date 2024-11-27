@@ -87,7 +87,6 @@ fun MyApp() {
 @Composable
 fun MainScreen() {
     var petName by remember { mutableStateOf("Dopaminho") }
-    var progress by remember { mutableFloatStateOf(100F) }
     val navController = rememberNavController()
     var selectedTab by remember { mutableStateOf("inicio") }
 
@@ -99,7 +98,6 @@ fun MainScreen() {
         topBar = {
             PetTopBar(
                 petName = petName,
-                life = progress,
                 onEditPetName = { newName -> petName = newName },
                 navController = navController // Passando o navController
             )
@@ -237,8 +235,9 @@ fun MainScreen() {
                 composable("estatisticas") { EstatisticasScreen() }
             }
 
-            // Exibe o Dopaminho centralizado
-            ExibirDopaminho(progress)
+
+
+
         }
     }
 }
@@ -263,11 +262,48 @@ fun InicioScreen() {
     LaunchedEffect(Unit) {
         while(true) {
             AppUsageManager.getUsageStats(context)
-            delay(100)
+            delay(1000)
         }
 
     }
+    // Exibe o Dopaminho centralizado
+    var vida by remember { mutableDoubleStateOf(BarraDeVida.vidaAtual) }
+    //Utiliza Lauched effects para que rode a função em loop a cada 1 segundo e atualiza vida com base no objeto Vida
+    LaunchedEffect(Unit) {
+        while (true) {
+            vida= BarraDeVida.vidaAtual
+            delay(1000)
 
+
+        }
+    }
+    Column {
+        //ImageResource recebe variavel vida que é mutável então consegue se modificar ao longo da execução do programa
+        var imageResource = remember(vida) {
+            when {
+                vida > 70 -> R.drawable.dopaminho_piscando // Acima de 70%: Imagem feliz
+                else -> R.drawable.dopaminho_neutro // Entre 30% e 70%: Imagem neutra
+            }
+        }
+        Image(  //Exibe imagem baseado em image resource
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(240.dp), // Define o tamanho da imagem
+            painter = rememberDrawablePainter(
+                drawable = getDrawable(
+                    LocalContext.current,
+                    imageResource
+                )
+            ),
+            contentDescription = "Imagem do Dopaminho",
+            contentScale = ContentScale.FillWidth,
+
+            )
+        //Botão que restaura vida para 100, mudando valor da variavel dentro do objetco Barra de Vida
+        Button(onClick = {BarraDeVida.vidaAtual=100.0}) {
+            Text("Recuperar vida")
+        }
+    }
     //Exibindo metas na tela
     Column {
         Column {
@@ -308,46 +344,6 @@ fun InicioScreen() {
             }
         }
     }
-
-
-
-//    Image(
-//        modifier = Modifier.clip(CircleShape),   //crops the image to circle shape
-//        painter = rememberDrawablePainter(
-//            drawable = getDrawable(
-//                LocalContext.current,
-//                R.drawable.dopaminho_piscando
-//            )
-//        ),
-//        contentDescription = "dopaminho piscando",
-//        contentScale = ContentScale.FillWidth,
-//    )
-}
-
-@Composable
-//variavel life é usado para não repetir termo "vida"
-fun ExibirDopaminho(life: Float){
-    val imageResource = remember(life) {
-        when {
-            life > 70 -> R.drawable.dopaminho_piscando // Acima de 70%: Imagem feliz
-            else -> R.drawable.dopaminho_neutro // Entre 30% e 70%: Imagem neutra
-        }
-    }
-    Image(
-        modifier = Modifier
-            .clip(CircleShape)
-            .size(240.dp), // Define o tamanho da imagem
-        painter = rememberDrawablePainter(
-            drawable = getDrawable(
-                LocalContext.current,
-                imageResource
-            )
-        ),
-        contentDescription = "Imagem do Dopaminho",
-        contentScale = ContentScale.FillWidth,
-
-        )
-
 }
 
 
@@ -370,10 +366,10 @@ object BarraDeVida { //Objeto barra de vida, não armazenou na memória
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetTopBar(petName: String, life: Float, onEditPetName: (String) -> Unit, navController: NavController) {
+fun PetTopBar(petName: String, onEditPetName: (String) -> Unit, navController: NavController) {
     var isEditing by remember { mutableStateOf(false) }
     var newPetName by remember { mutableStateOf(TextFieldValue(petName)) }
-    var vida by remember { mutableStateOf(100f) } //utilizando remember para refletir mudanças na interface, que não estava funcionando com object e Lauched Effects
+    var vida by remember { mutableDoubleStateOf(BarraDeVida.vidaAtual) } //utilizando remember para refletir mudanças na interface, que não estava funcionando com object e Lauched Effects
 
 
 
@@ -400,13 +396,13 @@ fun PetTopBar(petName: String, life: Float, onEditPetName: (String) -> Unit, nav
                             }
                         }
                         // Barra de progresso dentro da TopAppBar
-
-
+                        //Loop que roda função não composable que perde vida a cada 0.1 e atualiza variavel vida que é mutável de forma que atualiza
+                        //Text
                         LaunchedEffect(Unit) {
                             while (true) {
-
-                                vida -= 1
-                                delay(1000)
+                                BarraDeVida.perdeVida(1)
+                                vida= BarraDeVida.vidaAtual
+                                delay(100)
 
 
                             }

@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -37,6 +41,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dopaminho.ui.theme.DopaminhoTheme
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.delay
 import java.util.logging.Handler
 
@@ -82,7 +87,7 @@ fun MyApp() {
 @Composable
 fun MainScreen() {
     var petName by remember { mutableStateOf("Dopaminho") }
-    var progress by remember { mutableFloatStateOf(0.5f) }
+    var progress by remember { mutableFloatStateOf(100F) }
     val navController = rememberNavController()
     var selectedTab by remember { mutableStateOf("inicio") }
 
@@ -94,25 +99,28 @@ fun MainScreen() {
         topBar = {
             PetTopBar(
                 petName = petName,
-                progress = progress,
+                life = progress,
                 onEditPetName = { newName -> petName = newName },
                 navController = navController // Passando o navController
             )
 
+
         },
         bottomBar = {
-            NavigationBar (
-                containerColor= MaterialTheme.colorScheme.primaryContainer
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
 
             ) {
 
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clip(
-                        RoundedCornerShape(topStart = 16.dp,
-                        topEnd = 16.dp, // Apenas o canto superior direito arredondado
-                        bottomStart = 0.dp,
-                        bottomEnd = 0.dp)
+                        RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 16.dp, // Apenas o canto superior direito arredondado
+                            bottomStart = 0.dp,
+                            bottomEnd = 0.dp
+                        )
                     )
                 ) {
 
@@ -210,21 +218,28 @@ fun MainScreen() {
                         }
                     )
                 }
-                
-                
+
+
             }
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = "inicio", Modifier.padding(innerPadding)) {
-            composable("inicio") { InicioScreen() }
-            composable("atividades") { AtividadesScreen() }
-            composable("metas") { MetasScreen() }
-            composable("estatisticas") { EstatisticasScreen() }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding), // Garante que o conteúdo não sobreponha a barra de navegação
+            contentAlignment = Alignment.Center // Centraliza todo o conteúdo no Box
+        ) {
+            // Navegação entre telas
+            NavHost(navController, startDestination = "inicio", Modifier.fillMaxSize()) {
+                composable("inicio") { InicioScreen() }
+                composable("atividades") { AtividadesScreen() }
+                composable("metas") { MetasScreen() }
+                composable("estatisticas") { EstatisticasScreen() }
+            }
+
+            // Exibe o Dopaminho centralizado
+            ExibirDopaminho(progress)
         }
-
-
-
-
     }
 }
 
@@ -296,7 +311,6 @@ fun InicioScreen() {
 
 
 
-
 //    Image(
 //        modifier = Modifier.clip(CircleShape),   //crops the image to circle shape
 //        painter = rememberDrawablePainter(
@@ -310,6 +324,31 @@ fun InicioScreen() {
 //    )
 }
 
+@Composable
+//variavel life é usado para não repetir termo "vida"
+fun ExibirDopaminho(life: Float){
+    val imageResource = remember(life) {
+        when {
+            life > 70 -> R.drawable.dopaminho_piscando // Acima de 70%: Imagem feliz
+            else -> R.drawable.dopaminho_neutro // Entre 30% e 70%: Imagem neutra
+        }
+    }
+    Image(
+        modifier = Modifier
+            .clip(CircleShape)
+            .size(240.dp), // Define o tamanho da imagem
+        painter = rememberDrawablePainter(
+            drawable = getDrawable(
+                LocalContext.current,
+                imageResource
+            )
+        ),
+        contentDescription = "Imagem do Dopaminho",
+        contentScale = ContentScale.FillWidth,
+
+        )
+
+}
 
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 600)
@@ -331,12 +370,10 @@ object BarraDeVida { //Objeto barra de vida, não armazenou na memória
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit, navController: NavController) {
+fun PetTopBar(petName: String, life: Float, onEditPetName: (String) -> Unit, navController: NavController) {
     var isEditing by remember { mutableStateOf(false) }
     var newPetName by remember { mutableStateOf(TextFieldValue(petName)) }
-    var vida by remember { mutableDoubleStateOf(100.0) } //utilizando remember para refletir mudanças na interface, que não estava funcionando com object e Lauched Effects
-
-
+    var vida by remember { mutableStateOf(100f) } //utilizando remember para refletir mudanças na interface, que não estava funcionando com object e Lauched Effects
 
 
 
@@ -370,10 +407,13 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
 
                                 vida -= 1
                                 delay(1000)
+
+
                             }
                         }
                         Text("Vida: $vida / 100")
                         Spacer(modifier = Modifier.height(15.dp))
+
                     }
                 },
                 actions = {

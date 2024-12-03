@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,10 +25,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "goals")
+ val Context.dataStoreGoals: DataStore<Preferences> by preferencesDataStore(name = "goals")
 
 class GoalRepository(context: Context) {
-    private val dataStore = context.dataStore
+    private val dataStore = context.dataStoreGoals
 
     companion object {
         private val GOALS_KEY = stringPreferencesKey("goals")
@@ -63,10 +65,12 @@ fun MetasScreen() {
         goalRepository.saveGoals(savedGoals)
     }
 
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Button(
@@ -93,11 +97,12 @@ fun MetasScreen() {
             AddGoalDialog(
                 onDismiss = { showDialog = false },
                 onAddGoal = { labelApp, time, reason ->
-                    val newGoal = Goal(labelApp, time, reason)
+                    val usageStatsOnCreation = AppUsageManager.getAppUsageTime(context, labelApp)
+                    val newGoal = Goal(labelApp, time, reason, usageStatsOnCreation)
                     savedGoals = if (goalToEdit != null) {
                         // Editar meta existente
                         savedGoals.map {
-                            if (it == goalToEdit) Goal(labelApp, time, reason) else it
+                            if (it == goalToEdit) Goal(labelApp, time, reason, usageStatsOnCreation) else it
                         }
                     } else {
                         // Adiciona nova meta
@@ -244,7 +249,8 @@ fun MetasScreenPreview() {
 data class Goal(
     val labelApp: String, 
     val time: Int, 
-    val reason: String) {
+    val reason: String,
+    var usageTimeOnCreation: Long) {
     companion object {
         fun listToJson(goals: List<Goal>): String {
             val gson = Gson()

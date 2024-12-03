@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
                     PermissionScreen()
                 } else {
                     MyApp()
-                    AlarmReceiver.setAlarm(this)
+                    //AlarmReceiver.setAlarm(this)
                 }
             }
         }

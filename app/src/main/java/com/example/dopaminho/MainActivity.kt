@@ -45,10 +45,47 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.delay
 import java.util.logging.Handler
 
+//class MainActivity : ComponentActivity() {
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        enableEdgeToEdge()
+//
+//        setContent {
+//            DopaminhoTheme {
+//                MyApp()
+//            }
+//        }
+//    }
+//
+//    override fun onStart() {
+//        super.onStart()
+//        setContent {
+//            DopaminhoTheme {
+//                if (!hasUsageStatsPermission(this)) {
+//                    PermissionScreen()
+//                } else {
+//                    MyApp()
+//                    AlarmReceiver.setAlarm(this)
+//                }
+//            }
+//        }
+//    }
+//}
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val notificacao = Notification(this)
+        notificacao.criarCanalNotificacao()
+
+        notificacao.mostrarNotificacao(
+            titulo = "Teste Direto",
+            conteudo = "oi.",
+            notificacaoId = 1
+        )
         enableEdgeToEdge()
 
         setContent {
@@ -62,9 +99,11 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         setContent {
             DopaminhoTheme {
-                if (!hasUsageStatsPermission(this)) {
+                if (!hasUsageStatsPermission(this) || !hasNotificationPermission(this)) {
+                    // Se qualquer permissão não foi concedida, exibe a tela de permissões
                     PermissionScreen()
                 } else {
+                    // Se ambas as permissões foram concedidas, exibe o app
                     MyApp()
                     AlarmReceiver.setAlarm(this)
                 }
@@ -72,6 +111,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 
 

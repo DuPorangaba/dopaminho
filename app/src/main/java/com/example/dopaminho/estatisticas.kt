@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
@@ -20,16 +21,13 @@ import kotlinx.coroutines.delay
 @Composable
 fun EstatisticasScreen() {
     val context = LocalContext.current
-    // Usamos uma lista mutável para armazenar as estatísticas de uso
-    val usageStatsList by AppUsageManager.AppUsageStatsList.observeAsState(mutableListOf())
+    val usageStatsRepository = remember { appUsageRepository(context) }
+    var savedStats by remember { mutableStateOf<List<AppUsageStat>>(emptyList()) }
 
     // LaunchedEffect é usado para disparar a carga das estatísticas
     LaunchedEffect(Unit) {
-        while(true) {
-            AppUsageManager.getUsageStats(context)
-            delay(1000)
-        }
-
+        AppUsageManager.createListAppsOnGoal(context)
+        savedStats = usageStatsRepository.loadAppUsage()
     }
 
     DopaminhoTheme {
@@ -41,13 +39,21 @@ fun EstatisticasScreen() {
                 .verticalScroll(rememberScrollState())
             ) {
                 Text(text = "Usage Stats:")
-                // Exibe as estatísticas de uso, iterando sobre a lista de objetos AppUsageStat
-                usageStatsList.forEach { stat ->
+
+                if(savedStats.isEmpty()) {
                     Text(
-                        text = "${stat.labelName}: ${stat.totalUsageTime} secs",
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                        text = "No usage stats available."
                     )
+                } else {
+                    savedStats.forEach { stat ->
+                        Text(
+                            text = "${stat.labelName}: ${stat.totalUsageTime} secs",
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                        )
+                    }
                 }
+                // Exibe as estatísticas de uso, iterando sobre a lista de objetos AppUsageStat
+
             }
         }
     }

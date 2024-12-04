@@ -46,76 +46,7 @@ class GoalRepository(context: Context) {
         val goalsJson = preferences[GOALS_KEY] ?: "[]"
         return Goal.jsonToList(goalsJson)
     }
-}
 
-@Composable
-fun MetasScreen() {
-    val context = LocalContext.current
-    val goalRepository = remember { GoalRepository(context) }
-
-    var savedGoals by remember { mutableStateOf(listOf<Goal>()) }
-    var showDialog by remember { mutableStateOf(false) }
-    var goalToEdit by remember { mutableStateOf<Goal?>(null) }
-
-    LaunchedEffect(Unit) {
-        savedGoals = goalRepository.loadGoals()
-    }
-
-    LaunchedEffect(savedGoals) {
-        goalRepository.saveGoals(savedGoals)
-    }
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Button(
-            onClick = {
-                goalToEdit = null // Define que estamos criando uma nova meta
-                showDialog = true
-            },
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Adicionar Meta")
-        }
-
-        // Exibe os cards com as metas salvas
-        Spacer(modifier = Modifier.height(16.dp))
-        savedGoals.forEach { goal ->
-            GoalCard(goal) { updatedGoal ->
-                goalToEdit = updatedGoal // Define a meta a ser editada
-                showDialog = true
-            }
-        }
-
-        // Modal para adicionar ou editar nova meta
-        if (showDialog) {
-            AddGoalDialog(
-                onDismiss = { showDialog = false },
-                onAddGoal = { labelApp, time, reason ->
-                    val usageStatsOnCreation = AppUsageManager.getAppUsageTime(context, labelApp)
-                    val newGoal = Goal(labelApp, time, reason, usageStatsOnCreation)
-                    savedGoals = if (goalToEdit != null) {
-                        // Editar meta existente
-                        savedGoals.map {
-                            if (it == goalToEdit) Goal(labelApp, time, reason, usageStatsOnCreation) else it
-                        }
-                    } else {
-                        // Adiciona nova meta
-                        savedGoals + newGoal
-                    }
-
-                    showDialog = false
-                },
-                context,
-                existingGoal = goalToEdit // Passa a meta a ser editada
-            )
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,6 +57,7 @@ fun AddGoalDialog(
     context: Context,
     existingGoal: Goal? = null // Recebe uma meta existente para edição
 ) {
+    //listando os aplicativos instalados existentes
     val installedApps = remember {
         context.packageManager.queryIntentActivities(
             Intent(Intent.ACTION_MAIN).apply {
@@ -133,6 +65,17 @@ fun AddGoalDialog(
             },
             PackageManager.MATCH_ALL
         ).map {it.activityInfo.loadLabel(context.packageManager).toString()}.sorted()
+    }
+
+    //vendo as metas existentes
+    val savedGoals = remember { mutableStateOf(listOf<Goal>()) }
+    LaunchedEffect(Unit) {
+        savedGoals.value = GoalRepository(context).loadGoals()
+    }
+
+    //filtrando os apps instalados de acordo com as metas existentes, para que não existam duplicatas
+    val filteredApps = installedApps.filter {
+        app -> !savedGoals.value.any {it.labelApp == app}
     }
 
     var selectedApp by remember { mutableStateOf(existingGoal?.labelApp ?: "Instagram") }
@@ -181,7 +124,7 @@ fun AddGoalDialog(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        installedApps.forEach { labelApp ->
+                        filteredApps.forEach { labelApp ->
                             DropdownMenuItem(
                                 text = { Text(labelApp) },
                                 onClick = {
@@ -216,7 +159,87 @@ fun AddGoalDialog(
 }
 
 @Composable
-fun GoalCard(goal: Goal, onEdit: (Goal) -> Unit) {
+fun MetasScreen() {
+    val context = LocalContext.current
+    val goalRepository = remember { GoalRepository(context) }
+
+    var savedGoals by remember { mutableStateOf(listOf<Goal>()) }
+    var showDialog by remember { mutableStateOf(false) }
+    var goalToEdit by remember { mutableStateOf<Goal?>(null) }
+
+    LaunchedEffect(Unit) {
+        savedGoals = goalRepository.loadGoals()
+    }
+
+    LaunchedEffect(savedGoals) {
+        goalRepository.saveGoals(savedGoals)
+    }
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Button(
+            onClick = {
+                goalToEdit = null // Define que estamos criando uma nova meta
+                showDialog = true
+            },
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text("Adicionar Meta")
+        }
+
+        // Exibe os cards com as metas salvas
+        Spacer(modifier = Modifier.height(16.dp))
+        savedGoals.forEach { goal ->
+            GoalCard(
+                goal = goal,
+                onEdit = { updatedGoal ->
+                    goalToEdit = updatedGoal // Define a meta a ser editada
+                    showDialog = true
+                },
+                onRemove = { goalToRemove ->
+                    // Remover a meta diretamente
+                    savedGoals = savedGoals.filterNot { it == goalToRemove }
+                }
+            )
+        }
+
+
+        // Modal para adicionar ou editar nova meta
+        if (showDialog) {
+            AddGoalDialog(
+                onDismiss = { showDialog = false },
+                onAddGoal = { labelApp, time, reason ->
+                    //pega a quantidade de tempo usada até de criar a meta
+                    val usageStatsOnCreation = AppUsageManager.getAppUsageTime(context, labelApp)
+
+                    val newGoal = Goal(labelApp, time, reason, usageStatsOnCreation)
+                    savedGoals = if (goalToEdit != null) {
+                        // Editar meta existente
+                        savedGoals.map {
+                            if (it == goalToEdit) Goal(labelApp, time, reason, usageStatsOnCreation) else it
+                        }
+                    } else {
+                        // Adiciona nova meta
+                        savedGoals + newGoal
+                    }
+
+                    showDialog = false
+                },
+                context,
+                existingGoal = goalToEdit // Passa a meta a ser editada
+            )
+        }
+    }
+}
+
+@Composable
+fun GoalCard(goal: Goal, onEdit: (Goal) -> Unit, onRemove: (Goal) ->Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -233,6 +256,14 @@ fun GoalCard(goal: Goal, onEdit: (Goal) -> Unit) {
             Button(onClick = { onEdit(goal) }) {
                 Text("Editar")
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = { onRemove(goal) },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Remover", color = MaterialTheme.colorScheme.onError)
+            }
+
         }
     }
 }

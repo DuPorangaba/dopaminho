@@ -1,6 +1,5 @@
 package com.example.dopaminho
 
-import android.annotation.SuppressLint
 import android.app.Service
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
@@ -11,21 +10,17 @@ import android.os.HandlerThread
 import android.os.Process
 import android.os.IBinder
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 val Context.dataStoreAppUsage: DataStore<Preferences> by preferencesDataStore(name = "appUsage")
 
@@ -152,28 +147,25 @@ class AppUsageManager {
         }
 
         //função que irá atualizar o DataStore com os dados de getAppUsageStats de acordo com as metas definidas
-        @SuppressLint("UnrememberedMutableState")
-        @Composable
-        fun createListAppsOnGoal(context: Context) {
-            val savedGoals by remember { mutableStateOf(listOf<Goal>()) }
+        suspend fun createListAppsOnGoal(context: Context) {
+            val goalRepository = GoalRepository(context)
+            val appUsageRepository = appUsageRepository(context)
 
-            LaunchedEffect(Unit) {
-                savedGoals = GoalRepository(context).loadGoals()
-            }
+            val savedGoals = goalRepository.loadGoals()
+            var savedApps = appUsageRepository.loadAppUsage().toMutableList()
 
-            var savedApp by mutableStateOf(listOf<AppUsageStat>())
-
-            LaunchedEffect(Unit) {
-                savedApp = appUsageRepository(context).loadAppUsage()
-            }
+            val goalPackageNames = savedGoals.map {it.labelApp}
+            savedApps = savedApps.filter { it.packageName in goalPackageNames }.toMutableList()
 
             for (goal in savedGoals) {
-                val newApp = getAppUsageStats(context, goal.labelApp)
-                if (newApp.packageName != "NONE") {
-                    savedApp = savedApp + newApp
+                val newApp = getAppUsageStats(context,goal.labelApp)
+                if(newApp.packageName != "NONE" && newApp.packageName !in savedApps.map { it.packageName }) {
+                        savedApps.add(newApp)
                 }
             }
-            appUsageRepository(context).saveAppUsage(savedApp)
+
+            appUsageRepository.saveAppUsage(savedApps)
+
         }
 
         private fun getApplicationLabel(packageName: String, context: Context): String {
@@ -186,8 +178,6 @@ class AppUsageManager {
                 return packageName // Caso o nome não seja encontrado, retorna o nome do pacote
             }
         }
-
-
 
     }
 }
@@ -202,9 +192,20 @@ class UsageStatService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("UsageStatsService", "Serviço iniciado para obter uso de apps")
-        AppUsageManager.createListAppsOnGoal(applicationContext, )
-        return START_STICKY
+        Log.d("UsageStatService", "Serviço iniciado para obter uso de apps")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                AppUsageManager.createListAppsOnGoal(applicationContext)
+                Log.d("UsageStatService", "Uso de apps atualizado com sucesso")
+
+            } catch (e: Exception) {
+                Log.d("UsageStatService", "Erro ao atualizar uso de apps", e)
+            } finally {
+                stopSelf(startId)
+            }
+        }
+        return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent): IBinder? = null

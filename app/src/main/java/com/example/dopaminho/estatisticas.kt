@@ -22,13 +22,7 @@ import kotlinx.coroutines.delay
 fun EstatisticasScreen() {
     val context = LocalContext.current
     val usageStatsRepository = remember { appUsageRepository(context) }
-    var savedStats by remember { mutableStateOf<List<AppUsageStat>>(emptyList()) }
-
-    // LaunchedEffect é usado para disparar a carga das estatísticas
-    LaunchedEffect(Unit) {
-        AppUsageManager.createListAppsOnGoal(context)
-        savedStats = usageStatsRepository.loadAppUsage()
-    }
+    val savedStats = usageStatsRepository.loadAppUsageAsFlow().collectAsState(initial = emptyList())
 
     DopaminhoTheme {
         if (!hasUsageStatsPermission(context)) {
@@ -40,12 +34,12 @@ fun EstatisticasScreen() {
             ) {
                 Text(text = "Usage Stats:")
 
-                if(savedStats.isEmpty()) {
+                if(savedStats.value.isEmpty()) {
                     Text(
                         text = "No usage stats available."
                     )
                 } else {
-                    savedStats.forEach { stat ->
+                    savedStats.value.forEach { stat ->
                         Text(
                             text = "${stat.labelName}: ${stat.totalUsageTime} secs",
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)

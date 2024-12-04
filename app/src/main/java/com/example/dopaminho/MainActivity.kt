@@ -1,5 +1,6 @@
 package com.example.dopaminho
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -60,10 +61,16 @@ class MainActivity : ComponentActivity() {
                     PermissionScreen()
                 } else {
                     MyApp()
+                    startAppUsageService()
                     //AlarmReceiver.setAlarm(this)
                 }
             }
         }
+    }
+
+    private fun startAppUsageService() {
+        val intent = Intent(this, UsageStatService::class.java)
+        this.startService(intent)
     }
 }
 

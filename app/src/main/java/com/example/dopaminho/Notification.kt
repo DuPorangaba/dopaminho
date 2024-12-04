@@ -19,10 +19,12 @@ class Notification (private val context: Context) {
     /**
      * Cria o canal de notificações. Deve ser chamado antes de enviar qualquer notificação.
      * Necessário apenas para Android 8.0 (API 26) ou superior.
+     * NotificationManager.IMPORTANCE_HIGH/NotificationManager.IMPORTANCE_DEFAULT/NotificationManager.IMPORTANCE_LOW
+     * São 3 variáveis que podemos atribuir para val importancia para mudar comportamento da notificação
      */
     fun criarCanalNotificacao() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importancia = NotificationManager.IMPORTANCE_DEFAULT
+            val importancia = NotificationManager.IMPORTANCE_HIGH
             val canal = NotificationChannel(CANAL_ID, CANAL_NOME, importancia).apply {
                 description = CANAL_DESCRICAO
             }

@@ -322,7 +322,9 @@ fun InicioScreen() {
         var imageResource = remember(vida) {
             when {
                 vida > 70 -> R.drawable.dopaminho_piscando // Acima de 70%: Imagem feliz
-                else -> R.drawable.dopaminho_neutro // Entre 30% e 70%: Imagem neutra
+                vida > 50 -> R.drawable.dopaminho_neutro
+                vida > 30 -> R.drawable.dopaminho_meio_triste
+                else -> R.drawable.dopaminho_muito_triste
             }
         }
         Image(  //Exibe imagem baseado em image resource

@@ -1,5 +1,6 @@
 package com.example.dopaminho
 
+import android.app.Notification
 import android.content.Context
 
 suspend fun checkStatsGoals(context: Context) {
@@ -8,6 +9,9 @@ suspend fun checkStatsGoals(context: Context) {
 
     val savedGoals = goalRepository.loadGoals()
     var savedApps = appUsageRepository.loadAppUsage()
+    val  notification = Notification(context)
+    notification.criarCanalNotificacao()
+
 
     for (goal in savedGoals) {
         val app = savedApps.find {it.labelName == goal.labelApp}
@@ -19,7 +23,16 @@ suspend fun checkStatsGoals(context: Context) {
             if (appTimeUsage > appTimeGoal) {
                 BarraDeVida.perdeVida(5)
             }
+            if (BarraDeVida.vidaAtual < 70) {
+                notification.mostrarNotificacao(
+                    titulo = "Meta Excedida",
+                    conteudo = "Seu dopaminho está ficando triste :/",
+                    notificacaoId = 1
+                )
+            }
         }
 
     }
 }
+
+

@@ -180,6 +180,7 @@ class UsageStatService : Service() {
             coroutineScope.launch {
                 AppUsageManager.createListAppsOnGoal(this@UsageStatService)
                 checkStatsGoals(this@UsageStatService)
+
             }
 
             handler.postDelayed(this, interval)

@@ -8,3 +8,4 @@ object BarraDeVida { //Objeto barra de vida, não armazenou na memória
         if(vidaAtual<0 ) vidaAtual= 0.0
     }
 }
+

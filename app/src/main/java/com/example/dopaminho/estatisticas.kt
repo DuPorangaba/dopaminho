@@ -46,7 +46,6 @@ fun EstatisticasScreen() {
                         )
                     }
                 }
-                // Exibe as estatísticas de uso, iterando sobre a lista de objetos AppUsageStat
 
             }
         }

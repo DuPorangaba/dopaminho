@@ -39,6 +39,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.navigation.NavController
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
@@ -247,6 +248,10 @@ fun InicioScreen() {
         contentDescription = "dopaminho piscando",
         contentScale = ContentScale.FillWidth,
     )
+    //Botão que restaura vida para 100, mudando valor da variavel dentro do objetco Barra de Vida
+    Button(onClick = {BarraDeVida.vidaAtual=100.0}) {
+        Text("Recuperar vida")
+    }
 }
 
 
@@ -264,6 +269,7 @@ fun GreetingPreview() {
 fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit, navController: NavController) {
     var isEditing by remember { mutableStateOf(false) }
     var newPetName by remember { mutableStateOf(TextFieldValue(petName)) }
+    var vida by remember { mutableDoubleStateOf(BarraDeVida.vidaAtual) } //utilizando remember para refletir mudanças na interface, que não estava funcionando com object e Lauched Effects
 
     DopaminhoTheme {
         Column {
@@ -285,16 +291,14 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
                                 Icon(Icons.Default.Edit, contentDescription = "Editar nome do pet")
                             }
                         }
-                        // Barra de progresso dentro da TopAppBar
-                        LinearProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier
-                                .padding(vertical = 4.dp)
-                                .height(15.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                ,
-                            color= MaterialTheme.colorScheme.secondaryContainer
-                        )
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                //BarraDeVida.perdeVida(1)
+                                vida= BarraDeVida.vidaAtual
+                                delay(100)
+                            }
+                        }
+                        Text("Vida: $vida / 100.0")
                         Spacer(modifier = Modifier.height(15.dp))
                     }
                 },

@@ -179,7 +179,9 @@ class UsageStatService : Service() {
         override fun run() {
             coroutineScope.launch {
                 AppUsageManager.createListAppsOnGoal(this@UsageStatService)
+                checkStatsGoals(this@UsageStatService)
             }
+
             handler.postDelayed(this, interval)
         }
     }

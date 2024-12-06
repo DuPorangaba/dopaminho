@@ -81,11 +81,14 @@ class MainActivity : ComponentActivity() {
         val notificacao = Notification(this)
         notificacao.criarCanalNotificacao()
 
-        notificacao.mostrarNotificacao(
-            titulo = "Teste Direto",
-            conteudo = "oi.",
-            notificacaoId = 1
-        )
+// Tenta exibir a notificação "ALERTA"
+        notificacao.exibirNotificacaoCondicional("70")
+
+// Reseta o estado da notificação "ALERTA"
+        notificacao.resetarNotificacao(1)
+
+// Tenta exibir novamente a notificação "ALERTA"
+        notificacao.exibirNotificacaoCondicional("70")
         enableEdgeToEdge()
 
         setContent {

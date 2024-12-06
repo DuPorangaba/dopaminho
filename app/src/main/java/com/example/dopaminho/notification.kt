@@ -144,36 +144,39 @@ class Notification(private val context: Context) {
     /**
      * Exibe notificações específicas com base em condições.
      */
-    fun exibirNotificacaoCondicional(condicao: String) {
-        when (condicao) {
-            "70" -> mostrarNotificacao(
-                titulo = "Not1!",
-                conteudo = "OI11111111111.",
+    fun exibirNotificacaoCondicional(barraDevida: BarraDeVida) {
+        val vidaAtual = barraDevida.vidaAtual
+        when  {
+            vidaAtual > 70 -> {
+                Log.d("Notificação", "Reset")
+                resetarNotificacao(1)
+                resetarNotificacao(3)
+                resetarNotificacao(5)
+            }
+            vidaAtual in 51.0..70.0 -> mostrarNotificacao(
+                titulo = "Meta Execedida",
+                conteudo = "Seu dopaminho está com 70% de vida",
                 notificacaoId = 1,
                 icone = android.R.drawable.ic_dialog_alert,
                 prioridade = NotificationCompat.PRIORITY_HIGH
             )
 
-            "50" -> mostrarNotificacao(
-                titulo = "Not2",
-                conteudo = "OII2222222222",
-                notificacaoId = 2,
+            vidaAtual in 31.0..50.0 -> mostrarNotificacao(
+                titulo = "Você dobrou sua meta de uso!",
+                conteudo = "Seu dopaminho está com 50% de vida",
+                notificacaoId = 3,
                 prioridade = NotificationCompat.PRIORITY_HIGH
             )
 
-            "30" -> mostrarNotificacao(
+            vidaAtual in 0.0..30.0 -> mostrarNotificacao(
                 titulo = "not3",
                 conteudo = "OI33333333333333333",
-                notificacaoId = 3,
+                notificacaoId = 5,
                 icone = android.R.drawable.ic_dialog_info,
                 prioridade = NotificationCompat.PRIORITY_HIGH
             )
 
-            else -> mostrarNotificacao(
-                titulo = "Notificação",
-                conteudo = "Esta é uma notificação padrão.",
-                notificacaoId = 999
-            )
+            else -> return
         }
     }
 

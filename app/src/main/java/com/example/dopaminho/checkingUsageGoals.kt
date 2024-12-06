@@ -20,16 +20,15 @@ suspend fun checkStatsGoals(context: Context) {
 
         if (app != null) {
             val appTimeUsage = app.totalUsageTime - goal.usageTimeOnCreation
+            //se execede = 70
+            //se dobra = 50
+            //se quadruplica = 30
             if (appTimeUsage > appTimeGoal) {
-                BarraDeVida.perdeVida(5)
+                //BarraDeVida.perdeVida(5)
+
             }
-            if (BarraDeVida.vidaAtual < 70) {
-                notification.mostrarNotificacao(
-                    titulo = "Meta Excedida",
-                    conteudo = "Seu dopaminho está ficando triste :/",
-                    notificacaoId = 1
-                )
-            }
+            notification.exibirNotificacaoCondicional(BarraDeVida)
+
         }
 
     }

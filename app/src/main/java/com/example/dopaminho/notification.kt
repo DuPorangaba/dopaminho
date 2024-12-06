@@ -42,7 +42,7 @@ class Notification (private val context: Context) {
      * @param conteudo Conteúdo da notificação.
      * @param notificacaoId Identificador único da notificação.
      */
-    fun mostrarNotificacao(titulo: String, conteudo: String, notificacaoId: Int) {
+    fun mostrarNotificacao(titulo: String, conteudo: String, notificacaoId: Int, icone: Int= android.R.drawable.ic_dialog_info) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -61,4 +61,5 @@ class Notification (private val context: Context) {
             notify(notificacaoId, builder.build())
         }
     }
+
 }

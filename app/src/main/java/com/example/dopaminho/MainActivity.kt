@@ -237,20 +237,44 @@ fun MainScreen() {
 
 @Composable
 fun InicioScreen() {
-    Image(
-        modifier = Modifier.clip(CircleShape),   //crops the image to circle shape
-        painter = rememberDrawablePainter(
-            drawable = getDrawable(
-                LocalContext.current,
-                R.drawable.dopaminho_piscando
+    var vida by remember { mutableDoubleStateOf(BarraDeVida.vidaAtual) }
+    LaunchedEffect(Unit) {
+        while(true){
+            vida = BarraDeVida.vidaAtual
+            delay(1000)
+        }
+    }
+    Column {
+        //ImageResource recebe variavel vida que é mutável então consegue se modificar ao longo da execução do programa
+        var imageResource = remember(vida) {
+            when {
+                vida > 70 -> R.drawable.dopaminho_piscando // Acima de 70%: Imagem feliz
+                vida > 50 -> R.drawable.dopaminho_neutro
+                vida > 30 -> R.drawable.dopaminho_meio_triste
+                else -> R.drawable.dopaminho_muito_triste
+            }
+        }
+        Image(  //Exibe imagem baseado em image resource
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(500.dp), // Define o tamanho da imagem
+            painter = rememberDrawablePainter(
+                drawable = getDrawable(
+                    LocalContext.current,
+                    imageResource
+                )
+            ),
+            contentDescription = "Imagem do Dopaminho",
+            contentScale = ContentScale.FillWidth,
+
             )
-        ),
-        contentDescription = "dopaminho piscando",
-        contentScale = ContentScale.FillWidth,
-    )
-    //Botão que restaura vida para 100, mudando valor da variavel dentro do objetco Barra de Vida
-    Button(onClick = {BarraDeVida.vidaAtual=100.0}) {
-        Text("Recuperar vida")
+        //Botão que restaura vida para 100, mudando valor da variavel dentro do objetco Barra de Vida
+        Button(onClick = {BarraDeVida.vidaAtual=100.0}) {
+            Text("Recuperar vida")
+        }
+        Button(onClick={BarraDeVida.perdeVida(10)}){
+            Text("Perde 10 de vida")
+        }
     }
 }
 

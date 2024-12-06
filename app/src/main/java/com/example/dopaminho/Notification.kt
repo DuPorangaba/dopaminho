@@ -1,4 +1,5 @@
 package com.example.dopaminho
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -112,6 +113,7 @@ class Notification(private val context: Context) {
      * @param icone Ícone da notificação (opcional).
      * @param prioridade Prioridade da notificação (opcional).
      */
+    @SuppressLint("MissingPermission")
     fun mostrarNotificacao(
         titulo: String,
         conteudo: String,
@@ -124,12 +126,12 @@ class Notification(private val context: Context) {
             return
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.e("Notificação", "Permissão de notificação não concedida. Operação ignorada.")
-            return
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+//            context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            Log.e("Notificação", "Permissão de notificação não concedida. Operação ignorada.")
+//            return
+//        }
 
         val builder = NotificationCompat.Builder(context, CANAL_ID)
             .setSmallIcon(icone)

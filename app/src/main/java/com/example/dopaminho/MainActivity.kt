@@ -87,8 +87,10 @@ class MainActivity : ComponentActivity() {
 // Reseta o estado da notificação "ALERTA"
         notificacao.resetarNotificacao(1)
 
+
 // Tenta exibir novamente a notificação "ALERTA"
-        notificacao.exibirNotificacaoCondicional("70")
+        notificacao.exibirNotificacaoCondicional("50")
+        notificacao.resetarNotificacao(2)
         enableEdgeToEdge()
 
         setContent {

@@ -198,7 +198,7 @@ fun MainScreen() {
                                     modifier = Modifier.padding(6.dp)
                                 ) {
                                     Icon(
-                                        bitmap = ImageBitmap.imageResource(R.drawable.estatisticas),
+                                        bitmap = ImageBitmap.imageResource(R.drawable.config),
                                         contentDescription = "Estatísticas",
                                         modifier = Modifier.size(30.dp),
                                         tint = MaterialTheme.colorScheme.background
@@ -269,10 +269,13 @@ fun InicioScreen() {
 
             )
         //Botão que restaura vida para 100, mudando valor da variavel dentro do objetco Barra de Vida
-        Button(onClick = {BarraDeVida.vidaAtual=100.0}) {
+        Button(onClick = {BarraDeVida.vidaAtual=100.0},
+            modifier= Modifier.align(Alignment.CenterHorizontally)) {
             Text("Recuperar vida")
         }
-        Button(onClick={BarraDeVida.perdeVida(10)}){
+        Button(
+            onClick={BarraDeVida.perdeVida(10)},
+            modifier= Modifier.align(Alignment.CenterHorizontally)){
             Text("Perde 10 de vida")
         }
     }
@@ -329,7 +332,7 @@ fun PetTopBar(petName: String, progress: Float, onEditPetName: (String) -> Unit,
                 actions = {
                     IconButton(onClick = { navController.navigate("estatisticas") }) {
                         Icon(
-                            bitmap = ImageBitmap.imageResource(R.drawable.config),
+                            bitmap = ImageBitmap.imageResource(R.drawable.estatisticas),
                             contentDescription = "Configurações",
                             modifier = Modifier.size(30.dp),
                             tint = MaterialTheme.colorScheme.background

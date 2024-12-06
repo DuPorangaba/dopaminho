@@ -188,7 +188,7 @@ class UsageStatService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForegroundService()
+        //startForegroundService()
         handler.post(runnable)
         return START_STICKY
     }
@@ -202,29 +202,29 @@ class UsageStatService : Service() {
         return null
     }
 
-    private fun startForegroundService() {
-        val channelId = "UsageStatServiceChannel"
-        val channelName = "App Usage Tracking Service"
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                channelName,
-                NotificationManager.IMPORTANCE_LOW
-            )
-
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
-        }
-
-        val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Rastreamento de uso de apps")
-            .setContentText("Monitoramento o uso dos aplicativos em segundo plano")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .build()
-
-        startForeground(1, notification)
-    }
+//    private fun startForegroundService() {
+//        val channelId = "UsageStatServiceChannel"
+//        val channelName = "App Usage Tracking Service"
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            val channel = NotificationChannel(
+//                channelId,
+//                channelName,
+//                NotificationManager.IMPORTANCE_LOW
+//            )
+//
+//            val manager = getSystemService(NotificationManager::class.java)
+//            manager.createNotificationChannel(channel)
+//        }
+//
+//        val notification: Notification = NotificationCompat.Builder(this, channelId)
+//            .setContentTitle("Rastreamento de uso de apps")
+//            .setContentText("Monitoramento o uso dos aplicativos em segundo plano")
+//            .setSmallIcon(R.drawable.ic_launcher_foreground)
+//            .build()
+//
+//        startForeground(1, notification)
+//    }
 }
 
 //override fun onCreate() {

@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         setContent {
             DopaminhoTheme {
-                if (!hasUsageStatsPermission(this)) {
+                if (!hasUsageStatsPermission(this) || !hasNotificationPermission(this)) {
                     PermissionScreen()
                 } else {
                     MyApp()

@@ -173,13 +173,14 @@ class AppUsageManager {
 class UsageStatService : Service() {
     private val handler = android.os.Handler()
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    private val interval = 15000L
+    private val interval = 8000L
 
     private val runnable = object : Runnable {
         override fun run() {
             coroutineScope.launch {
                 AppUsageManager.createListAppsOnGoal(this@UsageStatService)
                 checkStatsGoals(this@UsageStatService)
+                Log.d("ThreadCoroutine",  "Running on thread: ${Thread.currentThread().name}")
             }
 
             handler.postDelayed(this, interval)
@@ -187,7 +188,7 @@ class UsageStatService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        //startForegroundService()
+       // startForegroundService()
         handler.post(runnable)
         return START_STICKY
     }
@@ -222,7 +223,7 @@ class UsageStatService : Service() {
 //            .setSmallIcon(R.drawable.ic_launcher_foreground)
 //            .build()
 //
-//        startForeground(1, notification)
+//        startForeground(4, notification)
 //    }
 }
 

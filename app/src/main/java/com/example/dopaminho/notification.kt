@@ -90,9 +90,6 @@ class Notification(private val context: Context) {
      * @param notificacaoId Identificador único da notificação.
      * @return `true` se já foi enviada, `false` caso contrário.
      */
-    private fun isNotificacaoJaEnviada(notificacaoId: Int): Boolean {
-        return sharedPreferences.getBoolean(notificacaoId.toString(), false)
-    }
 
     /**
      * Marca uma notificação como enviada.
@@ -120,10 +117,6 @@ class Notification(private val context: Context) {
         icone: Int = android.R.drawable.ic_dialog_info,
         prioridade: Int = NotificationCompat.PRIORITY_HIGH,
     ) {
-        if (isNotificacaoJaEnviada(notificacaoId)) {
-            Log.i("Notificação", "A notificação $notificacaoId já foi enviada.")
-            return
-        }
 
 
         val builder = NotificationCompat.Builder(context, CANAL_ID)
@@ -137,23 +130,15 @@ class Notification(private val context: Context) {
             notify(notificacaoId, builder.build())
         }
 
-        // Marca a notificação como enviada
-        marcarNotificacaoComoEnviada(notificacaoId)
     }
 
     /**
      * Exibe notificações específicas com base em condições.
      */
-    fun exibirNotificacaoCondicional(barraDevida: BarraDeVida) {
-        val vidaAtual = barraDevida.vidaAtual
+    fun exibirNotificacaoCondicional(notificacaoId: Int) {
         when  {
-            vidaAtual > 70 -> {
-                Log.d("Notificação", "Reset")
-                resetarNotificacao(1)
-                resetarNotificacao(3)
-                resetarNotificacao(5)
-            }
-            vidaAtual in 51.0..70.0 -> mostrarNotificacao(
+
+            notificacaoId == 1 -> mostrarNotificacao(
                 titulo = "Meta Execedida",
                 conteudo = "Seu dopaminho está com 70% de vida",
                 notificacaoId = 1,
@@ -161,17 +146,17 @@ class Notification(private val context: Context) {
                 prioridade = NotificationCompat.PRIORITY_HIGH
             )
 
-            vidaAtual in 31.0..50.0 -> mostrarNotificacao(
-                titulo = "Você dobrou sua meta de uso!",
+            notificacaoId == 2 -> mostrarNotificacao(
+                titulo = "Você DOBROU sua meta de uso!",
                 conteudo = "Seu dopaminho está com 50% de vida",
-                notificacaoId = 3,
+                notificacaoId = 2,
                 prioridade = NotificationCompat.PRIORITY_HIGH
             )
 
-            vidaAtual in 0.0..30.0 -> mostrarNotificacao(
-                titulo = "not3",
-                conteudo = "OI33333333333333333",
-                notificacaoId = 5,
+            notificacaoId == 3 -> mostrarNotificacao(
+                titulo = "META QUADRIPLICADA",
+                conteudo = "Seu dopaminho está muito triste e doente",
+                notificacaoId = 3,
                 icone = android.R.drawable.ic_dialog_info,
                 prioridade = NotificationCompat.PRIORITY_HIGH
             )
@@ -185,7 +170,6 @@ class Notification(private val context: Context) {
      *
      * @param notificacaoId Identificador único da notificação.
      */
-    fun resetarNotificacao(notificacaoId: Int) {
-        sharedPreferences.edit().remove(notificacaoId.toString()).apply()
-    }
+
+
 }

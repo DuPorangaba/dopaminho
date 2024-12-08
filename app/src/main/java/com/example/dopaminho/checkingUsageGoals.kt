@@ -23,14 +23,13 @@ suspend fun checkStatsGoals(context: Context) {
         if (app != null) {
             val appTimeUsage = app.totalUsageTime - goal.usageTimeOnCreation
 
-
                 if(appTimeUsage > appTimeGoal * 3 && BarraDeVida.vidaAtual > 30)  {
                     BarraDeVida.vidaAtual = 30.0
                     notification.mostrarNotificacao(
-                        titulo = "META QUADRIPLICADA",
+                        titulo = "META TRIPLICADA",
                         conteudo = "Seu dopaminho está muito triste e doente",
                         notificacaoId = 3,
-                        icone = android.R.drawable.ic_dialog_info,
+                        icone = R.drawable.ic_dopa_doente,
                         prioridade = NotificationCompat.PRIORITY_HIGH
                     )
                     Log.d("CheckStats", "appTimeUsage > appTimeGoal * 4 && BarraDeVida.vidaAtual > 30")
@@ -41,6 +40,7 @@ suspend fun checkStatsGoals(context: Context) {
                         titulo = "Você DOBROU sua meta de uso!",
                         conteudo = "Seu dopaminho está com 50% de vida",
                         notificacaoId = 2,
+                        icone = R.drawable.ic_dopa_triste,
                         prioridade = NotificationCompat.PRIORITY_HIGH
                     )
                         Log.d("CheckStats", "appTimeUsage > appTimeGoal * 2 && BarraDeVida.vidaAtual > 50")
@@ -52,7 +52,7 @@ suspend fun checkStatsGoals(context: Context) {
                         titulo = "Você excedeu sua meta!",
                         conteudo = "Seu dopaminho está com 70% de vida",
                         notificacaoId = 1,
-                        icone = android.R.drawable.ic_dialog_alert,
+                        icone = R.drawable.ic_dopa_neutro,
                         prioridade = NotificationCompat.PRIORITY_HIGH
                     )
                         Log.d("CheckStats", "appTimeUsage > appTimeGoal && BarraDeVida.vidaAtual > 70")

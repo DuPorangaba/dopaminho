@@ -24,8 +24,8 @@ import kotlinx.coroutines.flow.first
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-
 
 val Context.dataStoreGoals: DataStore<Preferences> by preferencesDataStore(name = "goals")
 
@@ -55,6 +55,7 @@ class GoalRepository(context: Context) {
                 val goalsJson = preferences[GOALS_KEY] ?: "[]"
                 Goal.jsonToList(goalsJson)
             }
+            .distinctUntilChanged()
     }
 
 }
@@ -146,7 +147,7 @@ fun AddGoalDialog(
                     }
                 }
 
-                Text("Defina o Tempo de Uso (em minutos):")
+                Text("Defina o Tempo de Uso (em segundos):")
                 TextField(
                     value = usageTime ?: "",
                     onValueChange = { usageTime = it },

@@ -27,10 +27,33 @@ import com.example.dopaminho.ui.theme.DopaminhoTheme
 import kotlinx.coroutines.delay
 import kotlin.math.max
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
 @Composable
-fun EstatisticasScreen(goals: List<Goal>, stats: List<AppUsageStat>) {
+fun EstatisticasScreen() {
+
+    val context = LocalContext.current
+
+    val goalRepository = GoalRepository(context)
+    val appUsageRepository = appUsageRepository(context)
+
+    val goals by goalRepository.loadGoalsAsFlow().collectAsState(initial = emptyList())
+    val stats by appUsageRepository.loadAppUsageAsFlow().collectAsState(initial = emptyList())
+
+    // Combina as metas com as estatísticas de uso
+    val combinedData = remember(goals, stats) {
+        goals.mapNotNull {
+            goal ->
+            val appStat = stats.find { it.labelName == goal.labelApp }
+            appStat?.let {
+                Triple(
+                    goal.labelApp,
+                    appStat.totalUsageTime,
+                    goal.time
+                )
+            }
+        }
+    }
+
     DopaminhoTheme {
         Column(
             modifier = Modifier
@@ -49,18 +72,6 @@ fun EstatisticasScreen(goals: List<Goal>, stats: List<AppUsageStat>) {
                     modifier = Modifier.padding(16.dp)
                 )
             } else {
-                // Combina as metas com as estatísticas de uso
-                val combinedData = goals.mapNotNull { goal ->
-                    val appStat = stats.find { it.labelName == goal.labelApp }
-                    appStat?.let {
-                        Triple(
-                            goal.labelApp,
-                            appStat.totalUsageTime / 60,  // Tempo atual (minutos)
-                            goal.time                      // Meta (minutos)
-                        )
-                    }
-                }
-
                 // Espaço flexível para empurrar o gráfico para a parte inferior
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -96,14 +107,14 @@ fun BarChartComparison(data: List<Triple<String, Long, Int>>, modifier: Modifier
 
                 // Desenho da barra de uso atual
                 drawRect(
-                    color = Color.Blue,
+                    color = Color(0xFF618AD1) ,
                     topLeft = Offset(barX, size.height - usageHeight),
                     size = Size(barWidth.toPx(), usageHeight)
                 )
 
                 // Desenho da barra de meta
                 drawRect(
-                    color = Color.Green,
+                    color = Color(0xFF4958B1) ,
                     topLeft = Offset(barX + barWidth.toPx(), size.height - goalHeight),
                     size = Size(barWidth.toPx(), goalHeight)
                 )
@@ -165,16 +176,5 @@ fun BarChartComparison(data: List<Triple<String, Long, Int>>, modifier: Modifier
 @Preview(showBackground = true)
 @Composable
 fun EstatisticasScreenPreview(){
-    val mockGoals = listOf(
-        Goal("Facebook", 120, "Relax", 100),
-        Goal("Instagram", 60, "Networking", 50),
-        Goal("WhatsApp", 90, "Communication", 50)
-    )
-
-    val mockStats = listOf(
-        AppUsageStat("com.facebook.katana", "Facebook", 720),  // 120 minutos
-        AppUsageStat("com.instagram.android", "Instagram", 540), // 90 minutos
-        AppUsageStat("com.whatsapp", "WhatsApp", 360) // 60 minutos
-    )
-    EstatisticasScreen(mockGoals, mockStats)
+    EstatisticasScreen()
 }

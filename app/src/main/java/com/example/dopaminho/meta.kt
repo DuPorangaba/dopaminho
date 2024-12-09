@@ -23,9 +23,11 @@ import com.example.dopaminho.ui.theme.DopaminhoTheme
 import kotlinx.coroutines.flow.first
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 
- val Context.dataStoreGoals: DataStore<Preferences> by preferencesDataStore(name = "goals")
+val Context.dataStoreGoals: DataStore<Preferences> by preferencesDataStore(name = "goals")
 
 class GoalRepository(context: Context) {
     private val dataStore = context.dataStoreGoals
@@ -45,6 +47,14 @@ class GoalRepository(context: Context) {
         val preferences = dataStore.data.first()
         val goalsJson = preferences[GOALS_KEY] ?: "[]"
         return Goal.jsonToList(goalsJson)
+    }
+
+    fun loadGoalsAsFlow(): Flow<List<Goal>> {
+        return dataStore.data
+            .map { preferences ->
+                val goalsJson = preferences[GOALS_KEY] ?: "[]"
+                Goal.jsonToList(goalsJson)
+            }
     }
 
 }

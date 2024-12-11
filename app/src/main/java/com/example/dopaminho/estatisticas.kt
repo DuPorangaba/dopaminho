@@ -72,7 +72,7 @@ fun EstatisticasScreen() {
 
             if (goals.isEmpty() || stats.isEmpty()) {
                 Text(
-                    text = "No usage stats or goals available.",
+                    text = "Não há metas disponíveis.",
                     modifier = Modifier.padding(16.dp)
                 )
             } else {

@@ -228,7 +228,6 @@ fun MetasScreen() {
                 onAddGoal = { labelApp, time, reason ->
                     //pega a quantidade de tempo usada até de criar a meta
                     val usageStatsOnCreation = AppUsageManager.getAppUsageTime(context, labelApp)
-
                     val newGoal = Goal(labelApp, time, reason, usageStatsOnCreation)
                     savedGoals = if (goalToEdit != null) {
                         // Editar meta existente
@@ -261,7 +260,7 @@ fun GoalCard(goal: Goal, onEdit: (Goal) -> Unit, onRemove: (Goal) ->Unit) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(text = "Rede Social: ${goal.labelApp}", style = MaterialTheme.typography.titleMedium)
-            Text(text = "Tempo de Uso: ${goal.time} minutos", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Tempo de Uso: ${goal.time} segundos", style = MaterialTheme.typography.bodyMedium)
             Text(text = "Motivo: ${goal.reason}", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = { onEdit(goal) }) {
@@ -292,7 +291,8 @@ data class Goal(
     val labelApp: String, 
     val time: Int, 
     val reason: String,
-    var usageTimeOnCreation: Long) {
+    var usageTimeOnCreation: Long,
+    var notification: Int = 3) {
     companion object {
         fun listToJson(goals: List<Goal>): String {
             val gson = Gson()

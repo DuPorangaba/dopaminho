@@ -274,11 +274,6 @@ fun InicioScreen() {
             modifier= Modifier.align(Alignment.CenterHorizontally)) {
             Text("Recuperar vida")
         }
-        Button(
-            onClick={BarraDeVida.perdeVida(10)},
-            modifier= Modifier.align(Alignment.CenterHorizontally)){
-            Text("Perde 10 de vida")
-        }
     }
 }
 
